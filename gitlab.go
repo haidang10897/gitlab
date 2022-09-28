@@ -113,7 +113,7 @@ func (c Config) Service() *integram.Service {
 
 func oAuthSuccessful(c *integram.Context) error {
 	c.Service().SheduleJob(cacheNickMap, 0, time.Now().Add(time.Second*5), c)
-	return c.NewMessage().SetText("Great! Now you can reply issues, commits, merge requests and snippets").Send()
+	return c.NewMessage().SetText("Giờ anh đã có thể reply lại các issue, commit, merge request rồi (* ^ ω ^)").Send()
 }
 
 func me(c *integram.Context) (*api.User, error) {
@@ -326,7 +326,7 @@ func hostedAppSecretEntered(c *integram.Context, baseURL string, appID string) e
 	appSecret := strings.TrimSpace(c.Message.Text)
 	if len(appSecret) != 64 {
 		c.NewMessage().
-			SetText("Looks like this *Application Secret* is incorrect. Must be a 64 HEX symbols. Please try again").
+			SetText("*Application Secret* sai rồi.Phải là 64 HEX symbols. Thử lại đi =.=").
 			EnableHTML().DisableWebPreview().
 			SetReplyAction(hostedAppSecretEntered, baseURL).
 			EnableForceReply().
