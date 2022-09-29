@@ -343,7 +343,7 @@ func hostedAppSecretEntered(c *integram.Context, baseURL string, appID string) e
 
 		return err
 	}
-	return c.NewMessage().SetText("Application ID or Secret is incorrect. Please try again. Enter *Application ID*").
+	return c.NewMessage().SetText("Application ID hoặc Secret sai. Xin hãy thử lại. Nhập *Application ID*").
 		EnableHTML().
 		SetReplyAction(hostedAppIDEntered, baseURL).
 		EnableForceReply().
@@ -355,14 +355,14 @@ func hostedAppIDEntered(c *integram.Context, baseURL string) error {
 
 	appID := strings.TrimSpace(c.Message.Text)
 	if len(appID) != 64 {
-		c.NewMessage().SetText("Looks like this *Application ID* is incorrect. Must be a 64 HEX symbols. Please try again").
+		c.NewMessage().SetText("Có vẻ *Application ID* sai mất rồi. Phải là 64 HEX symbols. Thử lại đi nhé").
 			EnableHTML().
 			SetReplyAction(hostedAppIDEntered, baseURL).
 			EnableForceReply().
 			Send()
 		return errors.New("Application ID '" + appID + "' is incorrect")
 	}
-	return c.NewMessage().SetText("Great! Now write me the *Secret* for this application").
+	return c.NewMessage().SetText("Ngon! Giờ đưa em *Secret* của application này nào!").
 		EnableHTML().
 		SetReplyAction(hostedAppSecretEntered, baseURL, appID).
 		EnableForceReply().
@@ -385,7 +385,7 @@ func mustBeAuthed(c *integram.Context) (bool, error) {
 
 	}
 	if !c.User.OAuthValid() {
-		return false, c.NewMessage().SetTextFmt("You need to authorize me to use interactive replies: %s", c.User.OauthInitURL()).
+		return false, c.NewMessage().SetTextFmt("Phải xác thực em đã mới dùng interactive replies được: %s", c.User.OauthInitURL()).
 			DisableWebPreview().
 			SetChat(c.User.ID).SetBackupChat(c.Chat.ID).Send()
 	}
@@ -469,7 +469,7 @@ func commitsReplied(c *integram.Context, baseURL string, projectID int, commits 
 	}
 
 	return c.NewMessage().
-		SetText(c.User.Mention()+" please specify commit to comment").
+		SetText(c.User.Mention()+" xin hãy xác định commit để comment nhé").
 		SetKeyboard(buttons.Markup(1), true).
 		EnableForceReply().
 		SetReplyAction(commitToReplySelected, baseURL, projectID, c.Message).
@@ -656,11 +656,11 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 
 		} else {
 			if wh.After != "0000000000000000000000000000000000000000" && wh.After != "" {
-				err = msg.SetText(fmt.Sprintf("%s created branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.URL(wh.Repository.Name+"/"+branch, wh.Repository.Homepage+"/tree/"+url.QueryEscape(branch)), text)).
+				err = msg.SetText(fmt.Sprintf("%s đã tạo branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.URL(wh.Repository.Name+"/"+branch, wh.Repository.Homepage+"/tree/"+url.QueryEscape(branch)), text)).
 					EnableHTML().
 					Send()
 			} else {
-				err = msg.SetText(fmt.Sprintf("%s deleted branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.Bold(wh.Repository.Name+"/"+branch), text)).
+				err = msg.SetText(fmt.Sprintf("%s đã xóa branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.Bold(wh.Repository.Name+"/"+branch), text)).
 					EnableHTML().
 					Send()
 			}
@@ -683,7 +683,7 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 
 		return msg.SetText(
 			fmt.Sprintf(
-				"%s pushed new %s at %s",
+				"%s đã push mới %s ở %s",
 				mention(c, wh.UserName, wh.UserEmail),
 				m.URL(itemType+" "+s[len(s)-1], wh.Repository.Homepage+"/tree/"+s[len(s)-1]),
 				m.URL(destStr, wh.Repository.Homepage),
@@ -714,7 +714,7 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 		msg.SetReplyAction(issueReplied, c.ServiceBaseURL.String(), wh.ObjectAttributes.ProjectID, wh.ObjectAttributes.ID)
 
 		if wh.ObjectAttributes.Action == "open" {
-			return msg.AddEventID("issue_" + strconv.Itoa(wh.ObjectAttributes.ID)).SetText(fmt.Sprintf("%s %s %s at %s:\n%s\n%s", mention(c, wh.User.Username, wh.UserEmail), wh.ObjectAttributes.State, m.URL("issue", wh.ObjectAttributes.URL), m.URL(wh.User.Username+" / "+wh.Repository.Name, wh.Repository.Homepage), m.Bold(wh.ObjectAttributes.Title), wh.ObjectAttributes.Description)).
+			return msg.AddEventID("issue_" + strconv.Itoa(wh.ObjectAttributes.ID)).SetText(fmt.Sprintf("%s %s %s ở %s:\n%s\n%s", mention(c, wh.User.Username, wh.UserEmail), wh.ObjectAttributes.State, m.URL("issue", wh.ObjectAttributes.URL), m.URL(wh.User.Username+" / "+wh.Repository.Name, wh.Repository.Homepage), m.Bold(wh.ObjectAttributes.Title), wh.ObjectAttributes.Description)).
 				EnableHTML().DisableWebPreview().Send()
 		}
 		action := "updated"
@@ -728,13 +728,13 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 
 		if id > 0 {
 			// reply to existing message
-			return msg.SetText(fmt.Sprintf("%s by %s", m.Bold(action), mention(c, wh.User.Username, ""))).
+			return msg.SetText(fmt.Sprintf("%s bởi %s", m.Bold(action), mention(c, wh.User.Username, ""))).
 				EnableHTML().DisableWebPreview().SetReplyToMsgID(id).Send()
 		}
 		// original message not found. Send WebPreview
 		wp := c.WebPreview("Issue", wh.ObjectAttributes.Title, wh.User.Username+" / "+wh.Repository.Name, wh.ObjectAttributes.URL, "")
 
-		return msg.SetText(fmt.Sprintf("%s by %s", m.URL(action, wp), mention(c, wh.User.Username, ""))).EnableHTML().Send()
+		return msg.SetText(fmt.Sprintf("%s bởi %s", m.URL(action, wp), mention(c, wh.User.Username, ""))).EnableHTML().Send()
 
 	case "note":
 		wp := ""
@@ -789,7 +789,7 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 				noteType = strings.ToLower(wh.ObjectAttributes.NoteableType)
 			}
 
-			return msg.SetTextFmt("%s commented on %s: %s", mention(c, wh.User.Username, ""), m.URL(noteType, wp), wh.ObjectAttributes.Note).
+			return msg.SetTextFmt("%s đã comment ở %s: %s", mention(c, wh.User.Username, ""), m.URL(noteType, wp), wh.ObjectAttributes.Note).
 				EnableHTML().
 				Send()
 		}
@@ -827,12 +827,12 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 		originMsg, _ := c.FindMessageByEventID(fmt.Sprintf("mr_%d", wh.ObjectAttributes.ID))
 
 		if originMsg != nil {
-			return msg.SetText(fmt.Sprintf("%s %s by %s", m.URL("merge request", wh.ObjectAttributes.URL), wh.ObjectAttributes.State, mention(c, wh.User.Username, wh.UserEmail))).
+			return msg.SetText(fmt.Sprintf("%s %s bởi %s", m.URL("merge request", wh.ObjectAttributes.URL), wh.ObjectAttributes.State, mention(c, wh.User.Username, wh.UserEmail))).
 				EnableHTML().SetReplyToMsgID(originMsg.MsgID).DisableWebPreview().Send()
 		}
 		wp := c.WebPreview("Merge Request", wh.ObjectAttributes.Title, wh.ObjectAttributes.Description, wh.ObjectAttributes.URL, "")
 
-		return msg.SetText(fmt.Sprintf("%s %s by %s", m.URL("Merge request", wp), wh.ObjectAttributes.State, mention(c, wh.User.Username, wh.UserEmail))).
+		return msg.SetText(fmt.Sprintf("%s %s bởi %s", m.URL("Merge request", wp), wh.ObjectAttributes.State, mention(c, wh.User.Username, wh.UserEmail))).
 			EnableHTML().Send()
 	case "build":
 		time.Sleep(time.Second)
@@ -864,7 +864,7 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 		} else if wh.BuildStatus == "running" {
 			text = "⚙ CI: " + commit + build + " is running"
 		} else if wh.BuildStatus == "success" {
-			text = fmt.Sprintf("✅ CI: "+commit+build+" succeeded after %.1f sec", wh.BuildDuration)
+			text = fmt.Sprintf("✅ CI: "+commit+build+" đã thành công sau %.1f sec", wh.BuildDuration)
 		} else if wh.BuildStatus == "failed" {
 			mark := "‼️"
 			suffix := ""
@@ -872,10 +872,10 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 				suffix = " (allowed to fail)"
 				mark = "❕"
 			}
-			text = fmt.Sprintf("%s CI: "+commit+build+" failed after %.1f sec%s", mark, wh.BuildDuration, suffix)
+			text = fmt.Sprintf("%s CI: "+commit+build+" đã fail sau %.1f sec%s", mark, wh.BuildDuration, suffix)
 
 		} else if wh.BuildStatus == "canceled" {
-			text = fmt.Sprintf("🔚 CI: "+commit+build+" canceled by %s after %.1f sec", mention(c, wh.User.Name, ""), wh.BuildDuration)
+			text = fmt.Sprintf("🔚 CI: "+commit+build+" đã bị cancel bởi %s sau %.1f sec", mention(c, wh.User.Name, ""), wh.BuildDuration)
 		}
 		if commitMsg != nil {
 			var commitMsgText string
@@ -999,7 +999,7 @@ func settings(c *integram.Context) error {
 	btns.Append("mr", "Merge requests")
 	btns.Append("issues", "Issues")
 
-	return c.NewMessage().SetText("Tune the notifications").SetInlineKeyboard(btns.Markup(1, "categories")).SetCallbackAction(settingsKeyboardPressed).Send()
+	return c.NewMessage().SetText("Chỉnh sửa notification").SetInlineKeyboard(btns.Markup(1, "categories")).SetCallbackAction(settingsKeyboardPressed).Send()
 }
 
 func update(c *integram.Context) error {
@@ -1017,7 +1017,7 @@ func update(c *integram.Context) error {
 
 	case "start":
 		return c.NewMessage().EnableAntiFlood().EnableHTML().
-			SetText("Hi here! To setup notifications " + m.Bold("for this chat") + " your GitLab project(repo), open Settings -> Web Hooks and add this URL:\n" + m.Fixed(c.Chat.ServiceHookURL())).EnableHTML().Send()
+			SetText("Chào anh! Để cài đặtnotifications " + m.Bold("cho group chat này") + " cho GitLab project(repo), hãy mở Settings -> Web Hooks và add URL:\n" + m.Fixed(c.Chat.ServiceHookURL())).EnableHTML().Send()
 
 	case "cancel", "clean", "reset":
 		return c.NewMessage().SetText("Clean").HideKeyboard().Send()
