@@ -641,9 +641,9 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 			}
 
 			text := fmt.Sprintf(
-				"%s %s to %s\n%s",
+				"%s %s lên %s\n%s",
 				mention(c, wh.UserName, wh.UserEmail),
-				m.URL("pushed", wp),
+				m.URL("đã push", wp),
 				m.URL(destStr+"/"+branch, wh.Repository.Homepage+"/tree/"+url.QueryEscape(branch)),
 				text,
 			)
@@ -660,7 +660,12 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 					EnableHTML().
 					Send()
 			} else {
-				err = msg.SetText(fmt.Sprintf("%s đã xóa branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.Bold(wh.Repository.Name+"/"+branch), text)).
+                                destStr := wh.Project.Path
+			        if destStr == "" {
+				        destStr = wh.Repository.Name
+			        }
+				// err = msg.SetText(fmt.Sprintf("%s đã xóa branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.Bold(wh.Repository.Name+"/"+branch), text)).
+                                err = msg.SetText(fmt.Sprintf("%s đã xóa branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.URL(destStr+"/"+branch, wh.Repository.Homepage+"/tree/"+url.QueryEscape(branch)), text)).
 					EnableHTML().
 					Send()
 			}
