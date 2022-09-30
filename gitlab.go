@@ -660,7 +660,7 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 					EnableHTML().
 					Send()
 			} else {
-                                destStr := wh.Project.Path
+                    destStr := wh.Project.Path
 			        if destStr == "" {
 				        destStr = wh.Repository.Name
 			        }
@@ -832,12 +832,23 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 		originMsg, _ := c.FindMessageByEventID(fmt.Sprintf("mr_%d", wh.ObjectAttributes.ID))
 
 		if originMsg != nil {
-			return msg.SetText(fmt.Sprintf("%s %s bởi %s", m.URL("merge request", wh.ObjectAttributes.URL), wh.ObjectAttributes.State, mention(c, wh.User.Username, wh.UserEmail))).
+			destStr := wh.Project.Path
+			if destStr == "" {
+				destStr = wh.Repository.Name
+			}
+			s := strings.Split(wh.Ref, "/")
+			branch := s[len(s)-1]
+			return msg.SetText(fmt.Sprintf("merge request ở %s %s bởi %s", m.URL(destStr+"/"+branch, wh.Repository.Homepage+"/tree/"+url.QueryEscape(branch)), wh.ObjectAttributes.State, mention(c, wh.User.Username, wh.UserEmail))).
 				EnableHTML().SetReplyToMsgID(originMsg.MsgID).DisableWebPreview().Send()
 		}
-		wp := c.WebPreview("Merge Request", wh.ObjectAttributes.Title, wh.ObjectAttributes.Description, wh.ObjectAttributes.URL, "")
-
-		return msg.SetText(fmt.Sprintf("%s %s bởi %s", m.URL("Merge request", wp), wh.ObjectAttributes.State, mention(c, wh.User.Username, wh.UserEmail))).
+		// wp := c.WebPreview("Merge Request", wh.ObjectAttributes.Title, wh.ObjectAttributes.Description, wh.ObjectAttributes.URL, "")
+		destStr := wh.Project.Path
+		if destStr == "" {
+			destStr = wh.Repository.Name
+		}
+		s := strings.Split(wh.Ref, "/")
+		branch := s[len(s)-1]
+		return msg.SetText(fmt.Sprintf("merge request ở %s %s bởi %s", m.URL(destStr+"/"+branch, wh.Repository.Homepage+"/tree/"+url.QueryEscape(branch)), wh.ObjectAttributes.State, mention(c, wh.User.Username, wh.UserEmail))).
 			EnableHTML().Send()
 	case "build":
 		time.Sleep(time.Second)
