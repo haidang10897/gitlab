@@ -656,7 +656,11 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 
 		} else {
 			if wh.After != "0000000000000000000000000000000000000000" && wh.After != "" {
-				err = msg.SetText(fmt.Sprintf("%s đã tạo branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.URL(wh.Repository.Name+"/"+branch, wh.Repository.Homepage+"/tree/"+url.QueryEscape(branch)), text)).
+				destStr := wh.Project.Path
+				if destStr == "" {
+					destStr = wh.Repository.Name
+				}
+				err = msg.SetText(fmt.Sprintf("%s đã tạo branch %s\n%s", mention(c, wh.UserName, wh.UserEmail), m.URL(destStr+"/"+branch, wh.Repository.Homepage+"/tree/"+url.QueryEscape(branch)), text)).
 					EnableHTML().
 					Send()
 			} else {
@@ -824,7 +828,7 @@ func webhookHandler(c *integram.Context, request *integram.WebhookContext) (err 
 				wh.ObjectAttributes.Description = "\n" + wh.ObjectAttributes.Description
 			}
 
-			err := msg.AddEventID("mr_" + strconv.Itoa(wh.ObjectAttributes.ID)).SetText(fmt.Sprintf("%s %s %s at %s:\n%s%s", mention(c, wh.User.Username, wh.UserEmail), wh.ObjectAttributes.State, m.URL("merge request", wh.ObjectAttributes.URL), m.URL(wh.UserName+" / "+wh.Repository.Name, wh.Repository.Homepage), m.Bold(wh.ObjectAttributes.Title), wh.ObjectAttributes.Description)).
+			err := msg.AddEventID("mr_" + strconv.Itoa(wh.ObjectAttributes.ID)).SetText(fmt.Sprintf("%s %s %s tại repo %s:\n%s%s", mention(c, wh.User.Username, wh.UserEmail), wh.ObjectAttributes.State, m.URL("merge request", wh.ObjectAttributes.URL), m.URL(wh.UserName+" / "+wh.Repository.Name, wh.Repository.Homepage), m.Bold(wh.ObjectAttributes.Title), wh.ObjectAttributes.Description)).
 				EnableHTML().DisableWebPreview().Send()
 
 			return err
